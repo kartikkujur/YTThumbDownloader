@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>⚡ YTThumbDownloader | Free YouTube Thumbnail Downloader HD</title>
+    <meta name="description" content="YTThumbDownloader lets you download high-quality YouTube thumbnails for free. Extract HD, SD, and HQ images instantly by pasting the video link.">
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .ad-placeholder { background: linear-gradient(135deg, #eef2f3 0%, #8e9eab 100%); }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 font-sans">
+
+    <nav class="bg-white shadow-sm sticky top-0 z-50">
+        <div class="max-w-6xl mx-auto px-4 py-3 flex justify-between items-center">
+            <a href="#" class="flex items-center space-x-2 text-2xl font-extrabold text-red-600">
+                <i class="fab fa-youtube"></i>
+                <span class="text-slate-900 tracking-tight">YTThumb<span class="text-red-600">Downloader</span></span>
+            </a>
+            <div class="hidden md:flex space-x-6 font-medium text-slate-600">
+                <a href="#how-to" class="hover:text-red-600 transition">How to Use</a>
+                <a href="#features" class="hover:text-red-600 transition">Features</a>
+                <a href="#faq" class="hover:text-red-600 transition">FAQs</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="max-w-4xl mx-auto mt-6 px-4">
+        <div class="ad-placeholder h-24 rounded-lg flex items-center justify-center text-xs font-bold text-slate-500 uppercase tracking-widest border border-dashed border-slate-300">
+            [--- Advertisement Place (Google AdSense) ---]
+        </div>
+    </div>
+
+    <main class="max-w-4xl mx-auto px-4 py-12">
+        <div class="text-center mb-10">
+            <h1 class="text-4xl md:text-5xl font-black text-slate-900 mb-4 tracking-tight">
+                Download YouTube Thumbnail <span class="text-red-600">In 1-Click</span>
+            </h1>
+            <p class="text-lg text-slate-600 max-w-xl mx-auto">
+                Welcome to YTThumbDownloader. Paste your YouTube video link below to extract and download high-resolution thumbnails instantly for free.
+            </p>
+        </div>
+
+        <div class="bg-white p-6 md:p-8 rounded-2xl shadow-xl border border-slate-100 max-w-2xl mx-auto">
+            <div class="flex flex-col sm:flex-row gap-3">
+                <div class="relative flex-grow">
+                    <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-slate-400">
+                        <i class="fas fa-link"></i>
+                    </span>
+                    <input type="text" id="videoUrl" placeholder="Paste YouTube Video URL here..." 
+                           class="w-full pl-10 pr-4 py-3.5 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-red-500 focus:bg-white transition text-base">
+                </div>
+                <button onclick="extractThumbnails()" class="bg-red-600 hover:bg-red-700 text-white font-bold px-8 py-3.5 rounded-xl shadow-lg shadow-red-600/20 transition flex items-center justify-center gap-2 cursor-pointer">
+                    <i class="fas fa-magic"></i> Fetch Thumbnail
+                </button>
+            </div>
+            <p id="errorMsg" class="text-red-500 text-sm mt-3 hidden font-medium"><i class="fas fa-exclamation-circle"></i> Please enter a valid YouTube video link.</p>
+        </div>
+
+        <div id="resultSection" class="mt-12 hidden transition-all duration-500">
+            <h2 class="text-2xl font-bold text-center text-slate-900 mb-8"><i class="fas fa-arrow-down text-green-500"></i> Your Extracted Thumbnails</h2>
+            
+            <div class="grid md:grid-cols-3 gap-6">
+                <div class="bg-white rounded-xl shadow-md border border-slate-100 overflow-hidden flex flex-col">
+                    <div class="bg-slate-100 p-2 font-bold text-xs uppercase tracking-wider text-center text-red-600 bg-red-50">Ultra HD (1080p / 720p)</div>
+                    <img id="imgHd" src="" alt="HD Thumbnail" class="w-full object-cover aspect-video bg-slate-100">
+                    <div class="p-4 mt-auto">
+                        <a id="btnHd" href="" target="_blank" class="w-full bg-slate-900 hover:bg-red-600 text-white text-center font-bold py-2.5 px-4 rounded-lg block transition text-sm">
+                            <i class="fas fa-download"></i> Download HD Image
+                        </a>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-xl shadow-md border border-slate-100 overflow-hidden flex flex-col">
+                    <div class="bg-slate-100 p-2 font-bold text-xs uppercase tracking-wider text-center text-slate-600">Standard Quality (480p)</div>
+                    <img id="imgSd" src="" alt="SD Thumbnail" class="w-full object-cover aspect-video bg-slate-100">
+                    <div class="p-4 mt-auto">
+                        <a id="btnSd" href="" target="_blank" class="w-full bg-slate-800 hover:bg-slate-900 text-white text-center font-bold py-2.5 px-4 rounded-lg block transition text-sm">
+                            <i class="fas fa-download"></i> Download SD Image
+                        </a>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-xl shadow-md border border-slate-100 overflow-hidden flex flex-col">
+                    <div class="bg-slate-100 p-2 font-bold text-xs uppercase tracking-wider text-center text-slate-600">Normal Quality (360p)</div>
+                    <img id="imgNormal" src="" alt="Normal Thumbnail" class="w-full object-cover aspect-video bg-slate-100">
+                    <div class="p-4 mt-auto">
+                        <a id="btnNormal" href="" target="_blank" class="w-full bg-slate-800 hover:bg-slate-900 text-white text-center font-bold py-2.5 px-4 rounded-lg block transition text-sm">
+                            <i class="fas fa-download"></i> Download Normal
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <div class="max-w-4xl mx-auto px-4 mb-16">
+        <div class="ad-placeholder h-32 rounded-lg flex items-center justify-center text-xs font-bold text-slate-500 uppercase tracking-widest border border-dashed border-slate-300">
+            [--- Middle Banner Ad Space ---]
+        </div>
+    </div>
+
+    <section id="how-to" class="bg-white border-t border-slate-200 py-16">
+        <div class="max-w-4xl mx-auto px-4">
+            
+            <div class="text-slate-700 mb-12">
+                <h2 class="text-3xl font-extrabold text-slate-950 mb-4 tracking-tight">
+                    Ultimate YouTube Thumbnail Downloader: Get Full HD Video Covers Instantly
+                </h2>
+                <p class="text-base leading-relaxed mb-6">
+                    Kya aap apni videos ke liye inspiration dhoodh rahe hain, ya fir kisi video ka thumbnail high quality me download karna chahte hain? 
+                    Our <strong>Free YTThumbDownloader</strong> is the perfect tool for content creators, designers, and researchers. 
+                    Bina kisi software ko install kiye, aap sirf 1-click me kisi bhi YouTube video ka cover image download kar sakte hain.
+                </p>
+
+                <h3 class="text-2xl font-bold text-slate-900 mt-8 mb-3">
+                    Why Choose YTThumbDownloader for Online Thumbnail Grabbing?
+                </h3>
+                <p class="text-base leading-relaxed mb-4">
+                    YouTube videos ke thumbnails creators ki mehnati design hote hain. Kai baar educational purposes, offline view, 
+                    ya graphic design seekhne ke liye hamein in thumbnails ki original file ki zaroorat hoti hai. 
+                    Aapko browser ke inspect element me jaakar code dhoodhne ki koi zaroorat nahi hai. Hum aapko direct official 
+                    YouTube servers se link nikal kar dete hain, jo ki 100% safe aur secure hai.
+                </p>
+
+                <h3 class="text-2xl font-bold text-slate-900 mt-8 mb-3">
+                    Features of Our High-Quality Thumbnail Downloader
+                </h3>
+                <ul class="list-disc pl-6 space-y-2 mb-6 text-base">
+                    <li><strong>Multiple Resolutions:</strong> Download images in Full HD (1080p), Ultra HD (720p), Standard (480p), or Normal quality.</li>
+                    <li><strong>Super Fast Extraction:</strong> Koi waiting timer nahi. Link paste karte hi thumbnail milliseconds me aapke samne hoga.</li>
+                    <li><strong>No Registration Required:</strong> Hamein aapka email ya login details nahi chahiye. Tool bilkul muft aur unlimited use ke liye hai.</li>
+                    <li><strong>Mobile & PC Friendly:</strong> Ye web tool Android, iOS, Windows, aur Mac sabhi devices par bina kisi rukavat ke chalta hai.</li>
+                    <li><strong>Supports YouTube Shorts & Live:</strong> Aap sirf regular videos hi nahi, balki YouTube Shorts aur upcoming Live streams ke covers bhi extract kar sakte hain.</li>
+                </ul>
+            </div>
+
+            <h2 class="text-3xl font-black text-slate-900 mb-8 text-center">How to Download YouTube Thumbnails?</h2>
+            <div class="grid md:grid-cols-3 gap-8 mb-16">
+                <div class="text-center">
+                    <div class="w-12 h-12 bg-red-100 text-red-600 rounded-full flex items-center justify-center text-xl font-bold mx-auto mb-4">1</div>
+                    <h3 class="font-bold text-lg mb-2">Copy Video Link</h3>
+                    <p class="text-slate-600 text-sm">Go to YouTube, open the video you want, and copy its link from the browser bar or share button.</p>
+                </div>
+                <div class="text-center">
+                    <div class="w-12 h-12 bg-red-100 text-red-600 rounded-full flex items-center justify-center text-xl font-bold mx-auto mb-4">2</div>
+                    <h3 class="font-bold text-lg mb-2">Paste and Fetch</h3>
+                    <p class="text-slate-600 text-sm">Paste that link inside our tool's input box above and click on the 'Fetch Thumbnail' button.</p>
+                </div>
+                <div class="text-center">
+                    <div class="w-12 h-12 bg-red-100 text-red-600 rounded-full flex items-center justify-center text-xl font-bold mx-auto mb-4">3</div>
+                    <h3 class="font-bold text-lg mb-2">Save to Device</h3>
+                    <p class="text-slate-600 text-sm">Choose your preferred quality (HD, SD, or Normal) and click the download button to save it.</p>
+                </div>
+            </div>
+
+            <div id="faq" class="border-t border-slate-100 pt-12">
+                <h2 class="text-3xl font-black text-slate-900 mb-8 text-center">Frequently Asked Questions</h2>
+                <div class="space-y-6 max-w-3xl mx-auto">
+                    <div class="bg-slate-50 p-5 rounded-xl">
+                        <h4 class="font-bold text-slate-900 mb-2"><i class="far fa-question-circle text-red-500 mr-1"></i> Is it legal to download YouTube thumbnails?</h4>
+                        <p class="text-slate-600 text-sm leading-relaxed">Yes, downloading thumbnails for personal use, review, or inspiration is fine. However, using someone else's copyrighted thumbnail directly on your own video without permission is not recommended.</p>
+                    </div>
+                    <div class="bg-slate-50 p-5 rounded-xl">
+                        <h4 class="font-bold text-slate-900 mb-2"><i class="far fa-question-circle text-red-500 mr-1"></i> Will I get the full HD 1080p thumbnail image?</h4>
+                        <p class="text-slate-600 text-sm leading-relaxed">Yes! If the creator uploaded an HD thumbnail (1280x720 or higher) with their video, YTThumbDownloader will instantly grab and show you the Maximum Resolution copy.</p>
+                    </div>
+                    <div class="bg-slate-50 p-5 rounded-xl">
+                        <h4 class="font-bold text-slate-900 mb-2"><i class="far fa-question-circle text-red-500 mr-1"></i> Does this tool work on mobile phones?</h4>
+                        <p class="text-slate-600 text-sm leading-relaxed">Absolutely. This tool is 100% mobile responsive. You can use it on Android devices, iPhones, and iPads without downloading any application.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <footer class="bg-slate-950 text-slate-400 py-8 border-t border-slate-900 text-center text-sm">
+        <p>&copy; 2026 YTThumbDownloader. All rights reserved. Not affiliated with YouTube/Google.</p>
+        <div class="flex justify-center space-x-4 mt-3 text-xs">
+            <a href="#" class="hover:text-white">Privacy Policy</a>
+            <span class="text-slate-700">|</span>
+            <a href="#" class="hover:text-white">Terms of Service</a>
+            <span class="text-slate-700">|</span>
+            <a href="#" class="hover:text-white">Contact Us</a>
+        </div>
+    </footer>
+
+    <script>
+        function extractThumbnails() {
+            const urlInput = document.getElementById('videoUrl').value.trim();
+            const errorMsg = document.getElementById('errorMsg');
+            const resultSection = document.getElementById('resultSection');
+
+            const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
+            const match = urlInput.match(regExp);
+
+            if (match && match[2].length === 11) {
+                const videoId = match[2];
+                errorMsg.classList.add('hidden');
+
+                const maxResUrl = `https://img.youtube.com/vi/${videoId}/maxresdefault.jpg`;
+                const hqUrl = `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`;
+                const mqUrl = `https://img.youtube.com/vi/${videoId}/mqdefault.jpg`;
+
+                document.getElementById('imgHd').src = maxResUrl;
+                document.getElementById('btnHd').href = maxResUrl;
+
+                document.getElementById('imgSd').src = hqUrl;
+                document.getElementById('btnSd').href = hqUrl;
+
+                document.getElementById('imgNormal').src = mqUrl;
+                document.getElementById('btnNormal').href = mqUrl;
+
+                resultSection.classList.remove('hidden');
+                resultSection.scrollIntoView({ behavior: 'smooth' });
+            } else {
+                errorMsg.classList.remove('hidden');
+                resultSection.classList.add('hidden');
+            }
+        }
+    </script>
+</body>
+</html>
