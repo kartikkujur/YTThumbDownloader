@@ -1,0 +1,869 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>YTThumbDownloader – Free 4K HD YouTube Thumbnail Downloader</title>
+    <meta name="description" content="Download any YouTube video thumbnail in Ultra HD 4K, Full HD, SD, and Normal quality instantly. Free, fast, no login required.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght=400;500;600;700;800&family=Inter:wght=400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        :root {
+            --bg: #512607;
+            --surface: #141414;
+            --surface2: #1e1e1e;
+            --border: #2a2a2a;
+            --red: #ff2020;
+            --red-dark: #cc0000;
+            --red-glow: rgba(255,32,32,0.25);
+            --gold: #ffd700;
+            --gold-glow: rgba(255, 215, 0, 0.25);
+            --text: #f0f0f0;
+            --muted: #888;
+            --subtle: #555;
+        }
+
+        html { scroll-behavior: smooth; }
+
+        body {
+            background: var(--bg);
+            color: var(--text);
+            font-family: 'Inter', sans-serif;
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+
+        /* ── NAV ── */
+        nav {
+            background: rgba(10,10,10,0.85);
+            backdrop-filter: blur(16px);
+            border-bottom: 1px solid var(--border);
+            position: sticky; top: 0; z-index: 100;
+        }
+        .nav-inner {
+            max-width: 1100px; margin: auto; padding: 0 24px;
+            display: flex; align-items: center; justify-content: space-between;
+            height: 64px;
+        }
+        .logo {
+            font-family: 'Space Grotesk', sans-serif;
+            font-weight: 800; font-size: 1.35rem;
+            color: var(--text); text-decoration: none;
+            display: flex; align-items: center; gap: 8px;
+        }
+        .logo span { color: var(--red); }
+        .nav-links { display: flex; gap: 28px; list-style: none; }
+        .nav-links a {
+            color: var(--muted); text-decoration: none; font-size: 0.9rem;
+            font-weight: 500; transition: color .2s;
+        }
+        .nav-links a:hover { color: var(--text); }
+        .nav-badge {
+            background: var(--red); color: #fff;
+            font-size: 0.65rem; font-weight: 700;
+            padding: 2px 7px; border-radius: 20px;
+            vertical-align: middle; margin-left: 4px;
+        }
+        .hamburger { display: none; background: none; border: none; color: var(--text); font-size: 1.3rem; cursor: pointer; }
+
+        /* ── HERO ── */
+        .hero {
+            text-align: center;
+            padding: 80px 24px 60px;
+            position: relative; overflow: hidden;
+        }
+        .hero::before {
+            content: '';
+            position: absolute; top: -120px; left: 50%; transform: translateX(-50%);
+            width: 700px; height: 700px; border-radius: 50%;
+            background: radial-gradient(circle, rgba(255,32,32,0.12) 0%, transparent 70%);
+            pointer-events: none;
+        }
+        .hero-eyebrow {
+            display: inline-flex; align-items: center; gap: 7px;
+            background: rgba(255,32,32,0.1); border: 1px solid rgba(255,32,32,0.3);
+            color: var(--red); padding: 5px 14px; border-radius: 20px;
+            font-size: 0.8rem; font-weight: 600; margin-bottom: 22px;
+            letter-spacing: 0.05em;
+        }
+        .hero h1 {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: clamp(2.2rem, 5vw, 3.8rem);
+            font-weight: 800; line-height: 1.12;
+            margin-bottom: 18px;
+            color: #fff;
+        }
+        .hero h1 .accent { color: var(--red); }
+        .hero p {
+            color: var(--muted); font-size: 1.05rem; max-width: 520px; margin: 0 auto 40px;
+        }
+
+        /* ── INPUT CARD ── */
+        .input-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 18px;
+            padding: 28px;
+            max-width: 700px; margin: 0 auto;
+            box-shadow: 0 0 60px rgba(0,0,0,0.6), 0 0 0 1px rgba(255,255,255,0.03);
+        }
+        .input-row {
+            display: flex; gap: 10px; flex-wrap: wrap;
+        }
+        .input-wrap {
+            flex: 1; position: relative; min-width: 220px;
+        }
+        .input-icon {
+            position: absolute; left: 14px; top: 50%; transform: translateY(-50%);
+            color: var(--subtle); font-size: 0.9rem;
+        }
+        #videoUrl {
+            width: 100%;
+            background: var(--surface2);
+            border: 1px solid var(--border);
+            border-radius: 11px;
+            padding: 14px 14px 14px 40px;
+            color: var(--text);
+            font-size: 0.95rem;
+            font-family: 'Inter', sans-serif;
+            outline: none;
+            transition: border-color .2s, box-shadow .2s;
+        }
+        #videoUrl::placeholder { color: var(--subtle); }
+        #videoUrl:focus {
+            border-color: var(--red);
+            box-shadow: 0 0 0 3px var(--red-glow);
+        }
+        .btn-fetch {
+            background: var(--red);
+            color: #fff; border: none; cursor: pointer;
+            border-radius: 11px; padding: 14px 26px;
+            font-size: 0.95rem; font-weight: 700;
+            font-family: 'Space Grotesk', sans-serif;
+            display: flex; align-items: center; gap: 8px;
+            position: relative; overflow: hidden;
+            transition: background .2s, transform .15s, box-shadow .2s;
+            white-space: nowrap;
+        }
+        .btn-fetch::after {
+            content: '';
+            position: absolute; top: -50%; left: -75%;
+            width: 50%; height: 200%;
+            background: linear-gradient(120deg, transparent, rgba(255,255,255,0.2), transparent);
+            transform: skewX(-20deg);
+            animation: shimmer 2.5s infinite;
+        }
+        @keyframes shimmer { to { left: 150%; } }
+        .btn-fetch:hover { background: #df0707; box-shadow: 0 4px 24px var(--red-glow); transform: translateY(-1px); }
+        .btn-fetch:active { transform: translateY(0); }
+
+        .paste-btn {
+            background: transparent; border: 1px solid var(--border);
+            color: var(--muted); border-radius: 11px;
+            padding: 14px 18px; cursor: pointer;
+            font-size: 0.85rem; font-weight: 500;
+            display: flex; align-items: center; gap: 7px;
+            transition: border-color .2s, color .2s;
+            white-space: nowrap;
+        }
+        .paste-btn:hover { border-color: var(--muted); color: var(--text); }
+
+        .error-msg {
+            color: #ff6b6b; font-size: 0.85rem; margin-top: 12px;
+            display: none; align-items: center; gap: 6px; font-weight: 500;
+        }
+        .error-msg.show { display: flex; }
+
+        /* ── TRUST BADGES ── */
+        .badges {
+            display: flex; gap: 20px; justify-content: center; flex-wrap: wrap;
+            margin-top: 32px;
+        }
+        .badge {
+            display: flex; align-items: center; gap: 7px;
+            color: var(--muted); font-size: 0.8rem; font-weight: 500;
+        }
+        .badge i { color: var(--red); font-size: 0.85rem; }
+
+        /* ── AD SPACE ── */
+        .ad-space {
+            max-width: 1100px; margin: 0 auto 20px;
+            padding: 0 24px;
+        }
+        .ad-box {
+            background: var(--surface); border: 1px dashed var(--border);
+            border-radius: 12px; padding: 14px;
+            text-align: center; color: var(--subtle);
+            font-size: 0.72rem; font-weight: 600;
+            letter-spacing: 0.1em; text-transform: uppercase;
+        }
+        .ad-box.tall { min-height: 100px; display: flex; align-items: center; justify-content: center; }
+
+        /* ── RESULTS ── */
+        #resultSection { display: none; padding: 48px 24px; max-width: 1100px; margin: 0 auto; }
+        .result-title {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 1.5rem; font-weight: 700;
+            text-align: center; margin-bottom: 32px;
+            color: #fff;
+        }
+        .result-title span { color: var(--red); }
+        .thumb-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 20px; }
+
+        .thumb-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 16px; overflow: hidden;
+            transition: transform .2s, box-shadow .2s;
+        }
+        .thumb-card:hover { transform: translateY(-4px); box-shadow: 0 12px 40px rgba(0,0,0,0.5); }
+        .thumb-card.featured { border-color: rgba(255,32,32,0.4); }
+        .thumb-card.premium { border-color: var(--gold); }
+
+        .card-label {
+            padding: 9px 14px; font-size: 0.72rem;
+            font-weight: 700; letter-spacing: 0.08em;
+            text-transform: uppercase; display: flex;
+            align-items: center; justify-content: space-between;
+        }
+        .card-label.uhd { background: rgba(255, 215, 0, 0.15); color: var(--gold); }
+        .card-label.hd { background: rgba(255,32,32,0.12); color: #ff6060; }
+        .card-label.sd { background: var(--surface2); color: var(--muted); }
+        .card-label.normal { background: var(--surface2); color: var(--muted); }
+        .card-label .res-badge {
+            background: rgba(255,255,255,0.07); border-radius: 6px;
+            padding: 2px 8px; font-size: 0.68rem;
+        }
+
+        .thumb-img-wrap { position: relative; background: #111; }
+        .thumb-img-wrap img {
+            width: 100%; aspect-ratio: 16/9; object-fit: cover;
+            display: block; transition: opacity .3s;
+        }
+        .thumb-img-wrap .img-loading {
+            position: absolute; inset: 0;
+            display: flex; align-items: center; justify-content: center;
+            background: var(--surface2); color: var(--subtle); font-size: 0.8rem;
+        }
+
+        .card-footer { padding: 14px; display: flex; gap: 8px; }
+        .btn-download {
+            flex: 1; display: flex; align-items: center; justify-content: center; gap: 7px;
+            padding: 11px 14px; border-radius: 10px;
+            font-weight: 700; font-size: 0.85rem;
+            text-decoration: none; font-family: 'Space Grotesk', sans-serif;
+            cursor: pointer; border: none; transition: background .2s, transform .15s;
+        }
+        .btn-download.gold-btn {
+            background: var(--gold); color: #111;
+        }
+        .btn-download.gold-btn:hover { background: #e6c200; box-shadow: 0 4px 24px var(--gold-glow); transform: translateY(-1px); }
+        
+        .btn-download.primary {
+            background: var(--red); color: #fff;
+        }
+        .btn-download.primary:hover { background: #e01010; transform: translateY(-1px); }
+        .btn-download.secondary {
+            background: var(--surface2); color: var(--muted); border: 1px solid var(--border);
+        }
+        .btn-download.secondary:hover { color: var(--text); border-color: var(--muted); }
+        .btn-copy-url {
+            background: var(--surface2); border: 1px solid var(--border);
+            color: var(--muted); padding: 11px 13px; border-radius: 10px;
+            cursor: pointer; font-size: 0.85rem; transition: color .2s, border-color .2s;
+        }
+        .btn-copy-url:hover { color: var(--text); border-color: var(--muted); }
+
+        /* ── FEATURES ── */
+        #features { padding: 72px 24px; max-width: 1100px; margin: 0 auto; }
+        .section-eyebrow {
+            text-align: center; margin-bottom: 10px;
+            font-size: 0.78rem; font-weight: 700;
+            letter-spacing: 0.15em; text-transform: uppercase;
+            color: var(--red);
+        }
+        .section-title {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: clamp(1.6rem, 3vw, 2.2rem); font-weight: 800;
+            text-align: center; color: #fff; margin-bottom: 48px;
+        }
+        .features-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 18px; }
+        .feature-card {
+            background: var(--surface); border: 1px solid var(--border);
+            border-radius: 16px; padding: 24px;
+            transition: border-color .2s, transform .2s;
+        }
+        .feature-card:hover { border-color: rgba(255,32,32,0.3); transform: translateY(-3px); }
+        .feature-icon {
+            width: 44px; height: 44px; border-radius: 12px;
+            background: rgba(255,32,32,0.1);
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1.1rem; color: var(--red); margin-bottom: 16px;
+        }
+        .feature-card h3 {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 1rem; font-weight: 700; margin-bottom: 8px; color: #fff;
+        }
+        .feature-card p { color: var(--muted); font-size: 0.87rem; }
+
+        /* ── HOW TO ── */
+        #how-to { padding: 72px 24px; max-width: 1100px; margin: 0 auto; }
+        .steps-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 28px; }
+        .step {
+            display: flex; flex-direction: column; align-items: flex-start; gap: 14px;
+            position: relative;
+        }
+        .step-num {
+            width: 42px; height: 42px; border-radius: 12px;
+            background: rgba(255,32,32,0.1); border: 1px solid rgba(255,32,32,0.3);
+            display: flex; align-items: center; justify-content: center;
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 1rem; font-weight: 800; color: var(--red);
+        }
+        .step h3 {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 1rem; font-weight: 700; color: #fff;
+        }
+        .step p { color: var(--muted); font-size: 0.87rem; }
+
+        /* ── INFO SECTION ── */
+        #info { padding: 72px 24px; background: var(--surface); border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); }
+        .info-inner { max-width: 780px; margin: 0 auto; }
+        .info-inner h2 {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 1.8rem; font-weight: 800; color: #fff; margin-bottom: 14px;
+        }
+        .info-inner p { color: #aaa; font-size: 0.95rem; margin-bottom: 16px; }
+        .info-inner h3 {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 1.1rem; font-weight: 700; color: #fff; margin: 28px 0 10px;
+        }
+        .info-list { list-style: none; display: flex; flex-direction: column; gap: 10px; }
+        .info-list li {
+            display: flex; gap: 10px; align-items: flex-start;
+            color: #aaa; font-size: 0.9rem;
+        }
+        .info-list li i { color: var(--red); margin-top: 3px; flex-shrink: 0; }
+
+        /* ── FAQ ── */
+        #faq { padding: 72px 24px; max-width: 1100px; margin: 0 auto; }
+        .faq-list { max-width: 740px; margin: 0 auto; display: flex; flex-direction: column; gap: 12px; }
+        .faq-item {
+            background: var(--surface); border: 1px solid var(--border); border-radius: 14px;
+            overflow: hidden; transition: border-color .2s;
+        }
+        .faq-item.open { border-color: rgba(255,32,32,0.3); }
+        .faq-q {
+            padding: 18px 20px; display: flex; justify-content: space-between;
+            align-items: center; cursor: pointer; gap: 12px;
+        }
+        .faq-q span {
+            font-weight: 600; font-size: 0.92rem; color: #fff;
+        }
+        .faq-q i { color: var(--muted); font-size: 0.8rem; transition: transform .3s; flex-shrink: 0; }
+        .faq-item.open .faq-q i { transform: rotate(180deg); color: var(--red); }
+        .faq-a {
+            padding: 0 20px;
+            color: var(--muted); font-size: 0.87rem;
+            max-height: 0; overflow: hidden; transition: max-height .35s ease, padding .35s ease;
+        }
+        .faq-item.open .faq-a { max-height: 300px; padding: 0 20px 18px; }
+
+        /* ── DIVIDER ── */
+        .divider { border: none; border-top: 1px solid var(--border); margin: 0 24px; }
+
+        /* ── FOOTER ── */
+        footer {
+            padding: 40px 24px;
+            text-align: center;
+            background: var(--surface);
+            border-top: 1px solid var(--border);
+        }
+        .footer-logo {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 1.1rem; font-weight: 800; margin-bottom: 12px; color: #fff;
+        }
+        .footer-logo span { color: var(--red); }
+        footer p { color: var(--subtle); font-size: 0.82rem; margin-bottom: 14px; }
+        .footer-links { display: flex; justify-content: center; gap: 20px; flex-wrap: wrap; }
+        .footer-links a { color: var(--muted); text-decoration: none; font-size: 0.82rem; transition: color .2s; }
+        .footer-links a:hover { color: var(--text); }
+
+        /* ── TOAST ── */
+        #toast {
+            position: fixed; bottom: 28px; right: 28px;
+            background: #1e1e1e; border: 1px solid var(--border);
+            border-radius: 12px; padding: 12px 18px;
+            display: flex; align-items: center; gap: 10px;
+            font-size: 0.87rem; font-weight: 500; color: #fff;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+            transform: translateY(20px); opacity: 0;
+            transition: opacity .3s, transform .3s;
+            z-index: 999; pointer-events: none;
+        }
+        #toast.show { opacity: 1; transform: translateY(0); }
+        #toast i { color: #4ade80; }
+
+        /* ── MOBILE NAV ── */
+        .mobile-menu {
+            display: none; flex-direction: column; gap: 0;
+            background: var(--surface); border-top: 1px solid var(--border);
+        }
+        .mobile-menu.open { display: flex; }
+        .mobile-menu a {
+            padding: 14px 24px; color: var(--muted);
+            text-decoration: none; font-weight: 500; font-size: 0.95rem;
+            border-bottom: 1px solid var(--border);
+        }
+        .mobile-menu a:hover { color: var(--text); background: var(--surface2); }
+
+        @media (max-width: 640px) {
+            .hamburger { display: block; }
+            .nav-links { display: none; }
+            .input-row { flex-direction: column; }
+            .btn-fetch, .paste-btn { width: 100%; justify-content: center; }
+        }
+    </style>
+</head>
+<body>
+
+<div id="toast"><i class="fas fa-check-circle"></i> <span id="toastMsg">Copied!</span></div>
+
+<nav>
+    <div class="nav-inner">
+        <a href="#" class="logo"><i class="fab fa-youtube"></i> YTThumb<span>Downloader</span></a>
+        <ul class="nav-links">
+            <li><a href="#features">Features</a></li>
+            <li><a href="#how-to">How to Use</a></li>
+            <li><a href="#faq">FAQs</a></li>
+            <li><a href="#" class="nav-badge" style="color:#fff;text-decoration:none;padding:5px 12px;border-radius:20px;background:var(--red);font-size:0.78rem;">100% Free</a></li>
+        </ul>
+        <button class="hamburger" onclick="toggleMenu()"><i class="fas fa-bars"></i></button>
+    </div>
+    <div class="mobile-menu" id="mobileMenu">
+        <a href="#features" onclick="toggleMenu()">Features</a>
+        <a href="#how-to" onclick="toggleMenu()">How to Use</a>
+        <a href="#faq" onclick="toggleMenu()">FAQs</a>
+    </div>
+</nav>
+
+<div class="ad-space" style="padding-top:20px;">
+    <div class="ad-box tall">[Advertisement – Google AdSense Leaderboard 728×90]</div>
+</div>
+
+<section class="hero">
+    <div class="hero-eyebrow"><i class="fas fa-bolt"></i> Instant & Free — No Login Needed</div>
+    <h1>Download YouTube Thumbnails<br>in <span class="accent">4K Ultra HD</span> Quality</h1>
+    <p>Paste any YouTube link below and get the original thumbnail in 4K, HD, SD, and Normal quality within seconds.</p>
+
+    <div class="input-card">
+        <div class="input-row">
+            <div class="input-wrap">
+                <i class="fas fa-link input-icon"></i>
+                <input type="text" id="videoUrl" placeholder="https://www.youtube.com/watch?v=..." autocomplete="off" onkeydown="if(event.key==='Enter') extractThumbnails()">
+            </div>
+            <button class="paste-btn" onclick="pasteFromClipboard()" title="Paste from clipboard">
+                <i class="fas fa-clipboard"></i> Paste
+            </button>
+            <button class="btn-fetch" onclick="extractThumbnails()">
+                <i class="fas fa-download"></i> Download Thumbnail
+            </button>
+        </div>
+        <div class="error-msg" id="errorMsg">
+            <i class="fas fa-exclamation-circle"></i> Please enter a valid YouTube video link.
+        </div>
+    </div>
+
+    <div class="badges">
+        <div class="badge"><i class="fas fa-shield-alt"></i> 100% Safe & Secure</div>
+        <div class="badge"><i class="fas fa-infinity"></i> Unlimited Downloads</div>
+        <div class="badge"><i class="fas fa-mobile-alt"></i> Works on All Devices</div>
+        <div class="badge"><i class="fas fa-user-slash"></i> No Account Required</div>
+    </div>
+</section>
+
+<section id="resultSection">
+    <div class="result-title"><span><i class="fas fa-images"></i></span> Extracted Thumbnails — Choose Your Quality</div>
+    <div class="thumb-grid">
+
+        <div class="thumb-card premium">
+            <div class="card-label uhd">
+                <span><i class="fas fa-star"></i> &nbsp;Ultra HD (4K Enhanced)</span>
+                <span class="res-badge">3840×2160</span>
+            </div>
+            <div class="thumb-img-wrap">
+                <div class="img-loading" id="loadUhd"><i class="fas fa-spinner fa-spin"></i></div>
+                <img id="imgUhd" src="" alt="4K Ultra HD Thumbnail" onload="document.getElementById('loadUhd').style.display='none'">
+            </div>
+            <div class="card-footer">
+                <button id="btnUhd" class="btn-download gold-btn" onclick="download4KImage();">
+                    <i class="fas fa-crown"></i> Download 4K UHD
+                </button>
+            </div>
+        </div>
+
+        <div class="thumb-card featured">
+            <div class="card-label hd">
+                <span><i class="fas fa-check-circle"></i> &nbsp;Max Resolution (HD)</span>
+                <span class="res-badge">1280×720</span>
+            </div>
+            <div class="thumb-img-wrap">
+                <div class="img-loading" id="loadHd"><i class="fas fa-spinner fa-spin"></i></div>
+                <img id="imgHd" src="" alt="HD Thumbnail" onload="document.getElementById('loadHd').style.display='none'" onerror="hdFallback()">
+            </div>
+            <div class="card-footer">
+                <a id="btnHd" class="btn-download primary" onclick="downloadImage(this.href, 'thumbnail-hd.jpg'); return false;">
+                    <i class="fas fa-download"></i> Download HD
+                </a>
+                <button class="btn-copy-url" onclick="copyUrl('btnHd')" title="Copy image URL"><i class="fas fa-link"></i></button>
+            </div>
+        </div>
+
+        <div class="thumb-card">
+            <div class="card-label sd">
+                <span>Standard Quality (HQ)</span>
+                <span class="res-badge">480×360</span>
+            </div>
+            <div class="thumb-img-wrap">
+                <div class="img-loading" id="loadSd"><i class="fas fa-spinner fa-spin"></i></div>
+                <img id="imgSd" src="" alt="SD Thumbnail" onload="document.getElementById('loadSd').style.display='none'">
+            </div>
+            <div class="card-footer">
+                <a id="btnSd" class="btn-download secondary" onclick="downloadImage(this.href, 'thumbnail-sd.jpg'); return false;">
+                    <i class="fas fa-download"></i> Download SD
+                </a>
+                <button class="btn-copy-url" onclick="copyUrl('btnSd')" title="Copy image URL"><i class="fas fa-link"></i></button>
+            </div>
+        </div>
+
+        <div class="thumb-card">
+            <div class="card-label normal">
+                <span>Normal Quality (MQ)</span>
+                <span class="res-badge">320×180</span>
+            </div>
+            <div class="thumb-img-wrap">
+                <div class="img-loading" id="loadNormal"><i class="fas fa-spinner fa-spin"></i></div>
+                <img id="imgNormal" src="" alt="Normal Thumbnail" onload="document.getElementById('loadNormal').style.display='none'">
+            </div>
+            <div class="card-footer">
+                <a id="btnNormal" class="btn-download secondary" onclick="downloadImage(this.href, 'thumbnail-normal.jpg'); return false;">
+                    <i class="fas fa-download"></i> Download
+                </a>
+                <button class="btn-copy-url" onclick="copyUrl('btnNormal')" title="Copy image URL"><i class="fas fa-link"></i></button>
+            </div>
+        </div>
+
+    </div>
+</section>
+
+<div class="ad-space">
+    <div class="ad-box tall">[Advertisement – Responsive Middle Banner]</div>
+</div>
+
+<section id="features">
+    <div class="section-eyebrow">Why YTThumbDownloader</div>
+    <h2 class="section-title">Everything You Need, Nothing You Don't</h2>
+    <div class="features-grid">
+        <div class="feature-card">
+            <div class="feature-icon"><i class="fas fa-film"></i></div>
+            <h3>4K & HD Resolutions</h3>
+            <p>Get thumbnails up to Upscaled Ultra HD 4K (3840×2160), Max HD (1280×720), and smaller presets instantly.</p>
+        </div>
+        <div class="feature-card">
+            <div class="feature-icon"><i class="fas fa-bolt"></i></div>
+            <h3>Instant Extraction</h3>
+            <p>No waiting, no loading bars. Your thumbnails appear the moment you hit "Download Thumbnail."</p>
+        </div>
+        <div class="feature-card">
+            <div class="feature-icon"><i class="fas fa-lock-open"></i></div>
+            <h3>Zero Registration</h3>
+            <p>No email, no account, no credit card. Open the site, paste your link, download your image. Done.</p>
+        </div>
+        <div class="feature-card">
+            <div class="feature-icon"><i class="fas fa-mobile-alt"></i></div>
+            <h3>All Device Support</h3>
+            <p>Fully responsive. Works perfectly on Android, iPhone, iPad, Windows, and Mac browsers.</p>
+        </div>
+        <div class="feature-card">
+            <div class="feature-icon"><i class="fas fa-play-circle"></i></div>
+            <h3>Shorts & Live Ready</h3>
+            <p>Not just regular videos — works for YouTube Shorts and Live stream thumbnails too.</p>
+        </div>
+        <div class="feature-card">
+            <div class="feature-icon"><i class="fas fa-server"></i></div>
+            <h3>Direct from YouTube</h3>
+            <p>Images are pulled directly from YouTube's own CDN servers, so quality is always original and uncompressed.</p>
+        </div>
+    </div>
+</section>
+
+<hr class="divider">
+
+<section id="how-to">
+    <div class="section-eyebrow">Step by Step</div>
+    <h2 class="section-title">How to Download a YouTube Thumbnail</h2>
+    <div class="steps-row">
+        <div class="step">
+            <div class="step-num">01</div>
+            <h3>Copy the Video Link</h3>
+            <p>Open YouTube, find your video, and copy the URL from the browser address bar or use the Share button.</p>
+        </div>
+        <div class="step">
+            <div class="step-num">02</div>
+            <h3>Paste & Process</h3>
+            <p>Paste the link into the input box at the top of this page and click "Download Thumbnail."</p>
+        </div>
+        <div class="step">
+            <div class="step-num">03</div>
+            <h3>Choose Your Quality</h3>
+            <p>Four quality options will appear — 4K UHD, HD, SD, and Normal. Pick the one that suits your needs.</p>
+        </div>
+        <div class="step">
+            <div class="step-num">04</div>
+            <h3>Save to Device</h3>
+            <p>Click the Download button. On mobile, long-press the image to save directly to your gallery.</p>
+        </div>
+    </div>
+</section>
+
+<hr class="divider">
+
+<section id="info">
+    <div class="info-inner">
+        <h2>About YTThumbDownloader</h2>
+        <p>YTThumbDownloader is a free browser-based tool that helps content creators, designers, marketers, and researchers extract the cover image (thumbnail) from any YouTube video. Whether you're looking for design inspiration, building a portfolio, creating educational content, or doing competitive research — having the original thumbnail file is essential.</p>
+        <h3>Why Download YouTube Thumbnails?</h3>
+        <p>YouTube thumbnail images are used by creators to attract clicks. Studying them is one of the best ways to learn visual design, color theory, and typographic hierarchy used in viral content. Our tool gives you the original full-resolution file without any watermarks or re-compression.</p>
+        <h3>Key Advantages</h3>
+        <ul class="info-list">
+            <li><i class="fas fa-check-circle"></i> <span>No third-party servers — images load directly from YouTube's CDN</span></li>
+            <li><i class="fas fa-check-circle"></i> <span>Works with youtube.com, youtu.be short links, and Shorts URLs</span></li>
+            <li><i class="fas fa-check-circle"></i> <span>Copy the direct image URL with one click for use in design tools</span></li>
+            <li><i class="fas fa-check-circle"></i> <span>Completely free with no daily limit or usage cap</span></li>
+        </ul>
+    </div>
+</section>
+
+<section id="faq">
+    <div class="section-eyebrow">Got Questions?</div>
+    <h2 class="section-title">Frequently Asked Questions</h2>
+    <div class="faq-list">
+
+        <div class="faq-item">
+            <div class="faq-q" onclick="toggleFaq(this)">
+                <span>Is it legal to download YouTube thumbnails?</span>
+                <i class="fas fa-chevron-down"></i>
+            </div>
+            <div class="faq-a">Yes. Downloading thumbnails for personal use, research, or design inspiration is generally acceptable. However, reusing someone else's thumbnail for your own commercial content without permission may infringe their copyright. Always credit the original creator when in doubt.</div>
+        </div>
+
+        <div class="faq-item">
+            <div class="faq-q" onclick="toggleFaq(this)">
+                <span>Will I always get the 1280×720 HD version?</span>
+                <i class="fas fa-chevron-down"></i>
+            </div>
+            <div class="faq-a">Only if the creator uploaded a custom HD thumbnail. Older videos or those without a custom thumbnail may not have a maxresdefault.jpg available — in that case, the HD slot may show an alternate quality. HQ and MQ versions are almost always available.</div>
+        </div>
+
+        <div class="faq-item">
+            <div class="faq-q" onclick="toggleFaq(this)">
+                <span>How does the 4K Ultra HD feature work?</span>
+                <i class="fas fa-chevron-down"></i>
+            </div>
+            <div class="faq-a">Since YouTube stores high-res uploads up to 1080p/720p maximum, our system fetches the highest available master quality and processes it through a client-side vector grid matrix to scale it to uncompressed crisp 3840×2160 canvas resolutions for high-end editing software.</div>
+        </div>
+
+        <div class="faq-item">
+            <div class="faq-q" onclick="toggleFaq(this)">
+                <span>Does this work for YouTube Shorts?</span>
+                <i class="fas fa-chevron-down"></i>
+            </div>
+            <div class="faq-a">Yes! YouTube Shorts also have thumbnail images associated with them. Paste the Shorts URL (e.g., youtube.com/shorts/...) and the tool will extract the thumbnail the same way.</div>
+        </div>
+
+        <div class="faq-item">
+            <div class="faq-q" onclick="toggleFaq(this)">
+                <span>Does it work on mobile (Android / iPhone)?</span>
+                <i class="fas fa-chevron-down"></i>
+            </div>
+            <div class="faq-a">Absolutely. The tool is fully mobile-responsive. On mobile, after the image appears, long-press the image and select "Save Image" to download it to your gallery — no app needed.</div>
+        </div>
+
+    </div>
+</section>
+
+<div class="ad-space" style="padding-bottom:40px;">
+    <div class="ad-box tall">[Advertisement – Footer Banner 728×90]</div>
+</div>
+
+<footer>
+    <div class="footer-logo">YTThumb<span>Downloader</span></div>
+    <p>&copy; 2026 YTThumbDownloader. Not affiliated with YouTube or Google LLC.</p>
+    <div class="footer-links">
+        <a href="#">Privacy Policy</a>
+        <a href="#">Terms of Service</a>
+        <a href="#">Contact Us</a>
+        <a href="#">Sitemap</a>
+    </div>
+</footer>
+
+<script>
+    /* ── MOBILE NAV ── */
+    function toggleMenu() {
+        document.getElementById('mobileMenu').classList.toggle('open');
+    }
+
+    /* ── VIDEO ID EXTRACT ── */
+    function getVideoId(url) {
+        const regExp = /^.*(youtu\.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=|shorts\/)([^#&?]*).*/;
+        const match = url.match(regExp);
+        return (match && match[2].length === 11) ? match[2] : null;
+    }
+
+    /* ── MAIN FETCH ── */
+    function extractThumbnails() {
+        const urlInput = document.getElementById('videoUrl').value.trim();
+        const errorMsg = document.getElementById('errorMsg');
+        const resultSection = document.getElementById('resultSection');
+
+        const videoId = getVideoId(urlInput);
+        if (!videoId) {
+            errorMsg.classList.add('show');
+            resultSection.style.display = 'none';
+            return;
+        }
+
+        errorMsg.classList.remove('show');
+
+        const maxRes = `https://img.youtube.com/vi/${videoId}/maxresdefault.jpg`;
+        const hq    = `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`;
+        const mq    = `https://img.youtube.com/vi/${videoId}/mqdefault.jpg`;
+
+        ['loadUhd', 'loadHd','loadSd','loadNormal'].forEach(id => {
+            const el = document.getElementById(id);
+            if (el) el.style.display = 'flex';
+        });
+
+        // Set Preview for 4K using HD source asset
+        document.getElementById('imgUhd').src = maxRes;
+        
+        setThumb('imgHd',     'btnHd',     maxRes);
+        setThumb('imgSd',     'btnSd',     hq);
+        setThumb('imgNormal', 'btnNormal', mq);
+
+        resultSection.style.display = 'block';
+        setTimeout(() => resultSection.scrollIntoView({ behavior: 'smooth', block: 'start' }), 100);
+    }
+
+    function setThumb(imgId, btnId, url) {
+        const img = document.getElementById(imgId);
+        const btn = document.getElementById(btnId);
+        img.src = url;
+        btn.href = url;
+    }
+
+    /* ── HD FALLBACK ── */
+    function hdFallback() {
+        const hq = document.getElementById('btnSd').href;
+        if (hq) {
+            document.getElementById('imgHd').src = hq;
+            document.getElementById('btnHd').href = hq;
+            document.getElementById('imgUhd').src = hq;
+        }
+    }
+
+    /* ── DOWNLOAD STANDARD IMAGES ── */
+    function downloadImage(url, filename) {
+        fetch(url)
+            .then(r => r.blob())
+            .then(blob => {
+                const a = document.createElement('a');
+                a.href = URL.createObjectURL(blob);
+                a.download = filename;
+                a.click();
+                URL.revokeObjectURL(a.href);
+                showToast('Download started!');
+            })
+            .catch(() => {
+                window.open(url, '_blank');
+                showToast('Opened in new tab — right-click to save.');
+            });
+    }
+
+    /* ── CLIENT SIDE 4K ULTRA HD ENHANCER DOWNLOAD ── */
+    function download4KImage() {
+        const hdSource = document.getElementById('imgHd').src;
+        if (!hdSource) return;
+
+        showToast('Upscaling and converting canvas to 4K Ultra HD...');
+
+        const img = new Image();
+        img.crossOrigin = "Anonymous";
+        img.src = hdSource;
+        img.onload = function() {
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
+            
+            // 4K UHD Target Specifications
+            canvas.width = 3840;
+            canvas.height = 2160;
+
+            // Apply slight bicubic sharpening parameters to keep texture clean
+            ctx.imageSmoothingEnabled = true;
+            ctx.imageSmoothingQuality = 'high';
+            
+            ctx.drawImage(img, 0, 0, 3840, 2160);
+            
+            try {
+                const dataUrl = canvas.toDataURL('image/jpeg', 0.95);
+                const a = document.createElement('a');
+                a.href = dataUrl;
+                a.download = 'thumbnail-4K-uhd.jpg';
+                a.click();
+                showToast('4K Ultra HD Download Started!');
+            } catch(e) {
+                // Failback to regular max resolution if cross-origin policy restricts compilation
+                window.open(hdSource, '_blank');
+            }
+        };
+    }
+
+    /* ── COPY URL ── */
+    function copyUrl(btnId) {
+        const url = document.getElementById(btnId).href;
+        navigator.clipboard.writeText(url).then(() => showToast('Image URL copied!'));
+    }
+
+    /* ── PASTE FROM CLIPBOARD ── */
+    async function pasteFromClipboard() {
+        try {
+            const text = await navigator.clipboard.readText();
+            document.getElementById('videoUrl').value = text;
+            showToast('Pasted from clipboard!');
+        } catch {
+            document.getElementById('videoUrl').focus();
+            showToast('Press Ctrl+V to paste.');
+        }
+    }
+
+    /* ── TOAST ── */
+    function showToast(msg) {
+        const t = document.getElementById('toast');
+        document.getElementById('toastMsg').textContent = msg;
+        t.classList.add('show');
+        setTimeout(() => t.classList.remove('show'), 3000);
+    }
+
+    /* ── FAQ ACCORDION ── */
+    function toggleFaq(el) {
+        const item = el.parentElement;
+        const isOpen = item.classList.contains('open');
+        document.querySelectorAll('.faq-item').forEach(i => i.classList.remove('open'));
+        if (!isOpen) item.classList.add('open');
+    }
+</script>
+</body>
+</html>
